@@ -50,9 +50,10 @@ class Keypad extends StatelessWidget {
           _KeyButton(label: '+', style: _KeyStyle.operatorKey, onTap: () => onOperator('add')),
         ])),
         Expanded(child: Row(children: [
-          _KeyButton(label: '0', flex: 2, onTap: () => onDigit('0')),
+          _KeyButton(label: '0', onTap: () => onDigit('0')),
           _KeyButton(label: '.', onTap: onDecimal),
           _KeyButton(label: '=', style: _KeyStyle.operatorKey, onTap: onEqual),
+          const _KeySpacer(),
         ])),
       ],
     );
@@ -60,6 +61,12 @@ class Keypad extends StatelessWidget {
 }
 
 enum _KeyStyle { normal, muted, operatorKey }
+
+class _KeySpacer extends StatelessWidget {
+  const _KeySpacer();
+  @override
+  Widget build(BuildContext context) => const Expanded(child: SizedBox());
+}
 
 class _KeyButton extends StatelessWidget {
   final String? label;
