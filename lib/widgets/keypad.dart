@@ -27,7 +27,7 @@ class Keypad extends StatelessWidget {
       children: [
         Expanded(child: Row(children: [
           _KeyButton(label: 'C', style: _KeyStyle.muted, onTap: onClear),
-          _KeyButton(icon: Icons.backspace_outlined, style: _KeyStyle.muted, onTap: onBackspace),
+          _KeyButton(icon: Icons.arrow_back, style: _KeyStyle.muted, onTap: onBackspace),
           _KeyButton(label: '%', style: _KeyStyle.muted, onTap: onPercent),
           _KeyButton(label: '÷', style: _KeyStyle.operatorKey, onTap: () => onOperator('divide')),
         ])),
