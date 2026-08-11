@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../data/flag_icons.dart';
 import '../models/currency.dart';
 import '../theme/app_theme.dart';
-import '../utils/flag_emoji.dart';
 
 class CurrencyRow extends StatefulWidget {
   final Currency currency;
@@ -73,14 +74,28 @@ class _CurrencyRowState extends State<CurrencyRow> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    widget.currency.isCrypto
-                        ? widget.currency.code.substring(0, 1)
-                        : flagEmoji(widget.currency.icon),
-                    style: TextStyle(
-                      fontSize: widget.currency.isCrypto ? 18 : 22,
-                      color: widget.currency.isCrypto ? AppColors.brandOrange : null,
-                      fontWeight: FontWeight.w800,
+                  ClipOval(
+                    child: SizedBox(
+                      width: 26,
+                      height: 26,
+                      child: widget.currency.isCrypto
+                          ? Container(
+                              color: AppColors.brandOrange.withOpacity(0.2),
+                              alignment: Alignment.center,
+                              child: Text(
+                                widget.currency.code.substring(0, 1),
+                                style: const TextStyle(
+                                    color: AppColors.brandOrange,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13),
+                              ),
+                            )
+                          : (flagIcons[widget.currency.icon] != null
+                              ? SvgPicture.string(
+                                  flagIcons[widget.currency.icon]!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(color: Colors.white24)),
                     ),
                   ),
                   const SizedBox(width: 8),
