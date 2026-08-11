@@ -177,13 +177,16 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          _formattedNow,
-                          style: const TextStyle(
-                            color: AppColors.success,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Tajawal',
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Text(
+                            _formattedNow,
+                            style: const TextStyle(
+                              color: AppColors.success,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'Tajawal',
+                            ),
                           ),
                         ),
                       ],
