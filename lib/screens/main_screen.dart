@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../data/fiat_currencies.dart';
 import '../models/currency.dart';
@@ -31,11 +32,35 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   int _activeRowIndex = 0;
+  late DateTime _now;
+  Timer? _clockTimer;
 
   @override
   void initState() {
     super.initState();
     _loadRates();
+    _now = DateTime.now();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _now = DateTime.now());
+    });
+  }
+
+  @override
+  void dispose() {
+    _clockTimer?.cancel();
+    super.dispose();
+  }
+
+  static const List<String> _months = [
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+    'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+  ];
+
+  String get _formattedNow {
+    final d = _now;
+    final hh = d.hour.toString().padLeft(2, '0');
+    final mm = d.minute.toString().padLeft(2, '0');
+    return '${d.day} ${_months[d.month - 1]} ${d.year}   $hh:$mm';
   }
 
   Future<void> _loadRates() async {
@@ -138,16 +163,30 @@ class _MainScreenState extends State<MainScreen> {
                       onEqual: _onEqual,
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      'Converter Vio',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'Tajawal',
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Converter Vio',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            fontFamily: 'Tajawal',
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _formattedNow,
+                          style: const TextStyle(
+                            color: AppColors.success,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Tajawal',
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -177,7 +216,15 @@ class _MainScreenState extends State<MainScreen> {
           child: Center(child: AppIcons.bank(size: 22)),
         ),
         const SizedBox(width: 12),
-        AppIcons.gear(size: 24),
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.06),
+          ),
+          child: Center(child: AppIcons.gear(size: 22)),
+        ),
       ],
     );
   }
