@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/currency.dart';
 import '../theme/app_theme.dart';
+import '../utils/flag_emoji.dart';
 
 class CurrencyRow extends StatefulWidget {
   final Currency currency;
@@ -55,6 +56,7 @@ class _CurrencyRowState extends State<CurrencyRow> {
 
   @override
   Widget build(BuildContext context) {
+    const double rowHeight = 60;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -62,18 +64,34 @@ class _CurrencyRowState extends State<CurrencyRow> {
           GestureDetector(
             onTap: widget.onTapSelector,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              height: rowHeight,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               decoration: BoxDecoration(
                 color: AppColors.rowGrey,
                 borderRadius: BorderRadius.circular(AppTheme.pillRadius),
               ),
-              child: Row(children: [
-                CircleAvatar(radius: 12, backgroundColor: Colors.white24),
-                const SizedBox(width: 8),
-                Text(widget.currency.code,
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.w700, fontFamily: 'Tajawal')),
-              ]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    widget.currency.isCrypto
+                        ? widget.currency.code.substring(0, 1)
+                        : flagEmoji(widget.currency.icon),
+                    style: TextStyle(
+                      fontSize: widget.currency.isCrypto ? 18 : 22,
+                      color: widget.currency.isCrypto ? AppColors.brandOrange : null,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(widget.currency.code,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontFamily: 'Tajawal',
+                          fontSize: 15)),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -82,7 +100,8 @@ class _CurrencyRowState extends State<CurrencyRow> {
               onTap: widget.onActivate,
               onLongPress: () => _showCopyPopup(context),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                height: rowHeight,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
                 decoration: BoxDecoration(
                   color: widget.isActive ? AppColors.activeRowBrown : AppColors.rowGrey,
                   borderRadius: BorderRadius.circular(AppTheme.pillRadius),
