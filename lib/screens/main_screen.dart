@@ -164,7 +164,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.only(top: 8, bottom: 14),
                     child: Column(
                       children: [
                         const Text(
@@ -219,15 +219,7 @@ class _MainScreenState extends State<MainScreen> {
           child: Center(child: AppIcons.bank(size: 22)),
         ),
         const SizedBox(width: 12),
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.06),
-          ),
-          child: Center(child: AppIcons.gear(size: 22)),
-        ),
+        AppIcons.gear(size: 24),
       ],
     );
   }
