@@ -5,6 +5,22 @@ import '../data/flag_icons.dart';
 import '../models/currency.dart';
 import '../theme/app_theme.dart';
 
+OverlayEntry? _globalCopyPopup;
+
+String _withThousandsSeparator(String value) {
+  final isNegative = value.startsWith('-');
+  final clean = isNegative ? value.substring(1) : value;
+  final parts = clean.split('.');
+  final intPart = parts[0];
+  final buffer = StringBuffer();
+  for (int i = 0; i < intPart.length; i++) {
+    if (i > 0 && (intPart.length - i) % 3 == 0) buffer.write(',');
+    buffer.write(intPart[i]);
+  }
+  final result = parts.length > 1 ? '${buffer.toString()}.${parts[1]}' : buffer.toString();
+  return isNegative ? '-$result' : result;
+}
+
 class CurrencyRow extends StatefulWidget {
   final Currency currency;
   final String displayValue;
@@ -26,8 +42,6 @@ class CurrencyRow extends StatefulWidget {
 }
 
 class _CurrencyRowState extends State<CurrencyRow> {
-  OverlayEntry? _copyPopup;
-
   void _showCopyPopup(BuildContext context) {
     if (widget.displayValue == '0') return;
 
@@ -35,24 +49,27 @@ class _CurrencyRowState extends State<CurrencyRow> {
     final offset = box.localToGlobal(Offset.zero);
     final size = box.size;
 
-    _copyPopup?.remove();
-    _copyPopup = OverlayEntry(
+    _globalCopyPopup?.remove();
+    _globalCopyPopup = null;
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(
       builder: (ctx) => Positioned(
-        left: offset.dx + size.width / 2 - 50,
-        top: offset.dy - 48,
+        left: offset.dx + size.width / 2 - 55,
+        top: offset.dy - 56,
         child: _CopyBubble(
           value: widget.displayValue,
-          onDone: () => _copyPopup?.remove(),
+          onDone: () {
+            if (_globalCopyPopup == entry) {
+              entry.remove();
+              _globalCopyPopup = null;
+            }
+          },
         ),
       ),
     );
-    Overlay.of(context).insert(_copyPopup!);
-  }
-
-  @override
-  void dispose() {
-    _copyPopup?.remove();
-    super.dispose();
+    _globalCopyPopup = entry;
+    Overlay.of(context).insert(entry);
   }
 
   @override
@@ -126,7 +143,7 @@ class _CurrencyRowState extends State<CurrencyRow> {
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
-                      widget.displayValue,
+                      _withThousandsSeparator(widget.displayValue),
                       style: TextStyle(
                         color: widget.isActive ? AppColors.brandOrange : Colors.white,
                         fontSize: 26,
@@ -159,6 +176,7 @@ class _CopyBubbleState extends State<_CopyBubble> {
 
   Future<void> _handleTap() async {
     await Clipboard.setData(ClipboardData(text: widget.value));
+    if (!mounted) return;
     setState(() => _copied = true);
     await Future.delayed(const Duration(milliseconds: 1200));
     widget.onDone();
@@ -166,27 +184,56 @@ class _CopyBubbleState extends State<_CopyBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final Color bg = _copied ? const Color(0xFF1A3A1A) : const Color(0xFF2A2A2A);
     return Material(
       color: Colors.transparent,
       child: GestureDetector(
         onTap: _handleTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: _copied ? const Color(0xFF1A3A1A) : const Color(0xFF2A2A2A),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            _copied ? '✓ تم' : '📋 نسخ',
-            style: TextStyle(
-              color: _copied ? AppColors.success : Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              fontFamily: 'Tajawal',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                _copied ? 'تم' : '📋 نسخ',
+                style: TextStyle(
+                  color: _copied ? AppColors.success : Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Tajawal',
+                ),
+              ),
             ),
-          ),
+            CustomPaint(
+              size: const Size(14, 7),
+              painter: _TrianglePainter(color: bg),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+class _TrianglePainter extends CustomPainter {
+  final Color color;
+  _TrianglePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    final path = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width / 2, size.height)
+      ..close();
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TrianglePainter oldDelegate) => oldDelegate.color != color;
 }
