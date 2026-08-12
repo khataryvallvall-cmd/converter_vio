@@ -112,6 +112,9 @@ class _KeyButton extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(AppTheme.pillRadius),
             onTap: onTap,
+            splashFactory: NoSplash.splashFactory,
+            highlightColor: Colors.black.withOpacity(0.15),
+            hoverColor: Colors.transparent,
             child: Center(
               child: icon != null
                   ? Icon(icon, color: fg, size: 26)
